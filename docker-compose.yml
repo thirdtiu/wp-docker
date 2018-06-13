@@ -1,34 +1,36 @@
 version: '3.1'
 
 services:
-   db:
-     hostname: db
-     image: mysql:5.7
-     restart: always
-     ports:
-       - '3333:3306' # port on host 3333, port on container 3306
-     environment:
-       MYSQL_ROOT_PASSWORD: 123qwe
-       MYSQL_DATABASE: wordpress
-       MYSQL_USER: wordpress
-       MYSQL_PASSWORD: 123qwe
-     volumes:
-       - ./db_data:/var/lib/mysql
+  db:
+    hostname: db
+    image: mysql:5.7
+    restart: always
+    ports:
+      - '3333:3306' # port on host 3333, port on container 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 123qwe
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: 123qwe
+    volumes:
+      - db_data:/var/lib/mysql
+   
+  wordpress:
+    image: wordpress:4.9.6-php5.6-apache
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: 123qwe
+    volumes:
+      # persistence data based on mounting point
+      - ./plugins:/var/www/html/wp-content/plugins
+      - ./themes:/var/www/html/wp-content/themes
+      - ./uploads:/var/www/html/wp-content/uploads
 
-   wordpress:
-     image: wordpress:4.9.6-php5.6-apache
-     restart: always
-     depends_on:
-       - db
-     ports:
-       - "8000:80"
-     environment:
-       WORDPRESS_DB_HOST: db
-       WORDPRESS_DB_USER: wordpress
-       WORDPRESS_DB_PASSWORD: 123qwe
-     volumes:
-       # persistence data based on mounting point
-       - ./plugins:/var/www/html/wp-content/plugins
-       - ./themes:/var/www/html/wp-content/themes
-       - ./uploads:/var/www/html/wp-content/uploads
-    
+volumes:
+  db_data:
